@@ -22,6 +22,9 @@
             <div class="prepend-2 span-3 append-12 last"><button id="navreload">Refresh</button></div>
             <hr />
                     <div class="span-24 last">
+			<div class="span-12 append-12 last">
+				<div id="map_canvas" style="width: 500px; height: 300px"></div>
+			</div>
                         <div class="span-7 colborder">
                             <h3>Bus Info</h3>
                             <p id='businfo'></p>
@@ -33,8 +36,6 @@
                         </div>
                         <div class="span-6 colborder">
                             <h3>Weather</h3>
-                            <div id="times">
-                            </div>
                             <div class='response'><span id="response">?</span> </div>
                             </div>
                         <div class="span-7 last">
@@ -47,39 +48,51 @@
                     </div>
                 </div>
 	</body>
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key=ABQIAAAA_6YxpRQIVJjIx8daYGWgaRSoe-VhWat6qM5h3ZKg1qD5_SlhqhRRcZsNaAPttPkDvNO1UjWo8d7_9g" type="text/javascript"></script>
 <script type="text/javascript">
         $(document).ready(function(){
             // the main jQuery code
+    function initialize(lat,lon) { 
+     if (GBrowserIsCompatible()) { 
+       var map = new GMap2(document.getElementById("map_canvas"));
+       map.setCenter(new GLatLng(lat, lon), 13);
+// Create our "tiny" marker icon
+var blueIcon = new GIcon(G_DEFAULT_ICON);blueIcon.image = "http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png";                // Set up our GMarkerOptions object
+markerOptions = { icon:blueIcon };
+var point = new GLatLng(lat, lon);
+       map.addOverlay(new GMarker(point, markerOptions));
+       map.setUIToDefault();
+      }
+    }
             function build_watch() { // the main location function. Refreshable
                 navigator.geolocation.getCurrentPosition(function(position) {
                     $('#lat').val(position.coords.latitude);
                     $('#lon').val(position.coords.longitude);
-                    
-                    // $('#businfo').load('/ajax/bus/loc/' + String(position.coords.latitude)+ ',' + String(position.coords.longitude));
-                    $('#businfo').load('/ajax/bus/loc/' + String(position.coords.latitude) + '/' + String(position.coords.longitude));
-                }); 
-            }
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
+		    initialize(lat,lon);
+             $.getJSON('/ajax/bus/ids/loc/' + lat + '/' + lon, function(json) {
+                ii = 0;
+		
+                for (ii=0; ii != json.busids.length; ii++) {
+                    $.getJSON('/ajax/bus/times/' + json.busids[ii], function(buses) {
+                        var ii = 0;
+                        var times = "";
+			var businfo = "";
+			businfo += "<h4>" + buses.idinfo[ii].stopName + "</h4><br /><b>" + buses.idinfo[ii].stopID + "</b>";
+                        for (ii=0; ii!=buses.idinfo.slice().length;ii++){
+                            times += buses.idinfo[ii].times.slice();
+                        }
+                        $('#businfo').append(businfo + "<ul>" + times + "</ul>");
+                    });
+                }
+            });                   
+	}); 
+    }
             build_watch;
             $('#navreload').click(build_watch);
             
-            /*$.getJSON('/ajax/bus/loc/49.229195/-122.947248', function(json) {
-              $('#response').html('grabbed: ' + json.bustimes[0][0].stopName);
-              var out = "";
-              out += jsonPath(json, "$..*",{resultType:"PATH"}).toJSONString();
-              $('#response').html('this is what I got: <br />' + out);
-            });*/
-            
-            /*
-            $.getJSON('/ajax/bus/loc/49.229195/-122.997248', function(json) {
-                var busset = "<h3>Closest " + json.bustimes.length + " Stops</h3>";
-                var ii=0;
-                for (ii=0; ii<=(json.bustimes.length-1); ii++) {
-                    busset += "<p><b>" + (ii+1) + "</b>: " + json.bustimes[ii][0].stopName + "</p>";
-                }
-                $('#response').html(busset);
-            });
-            */
-            var watcher = navigator.geolocation.watchPosition(function(position) {
+                var watcher = navigator.geolocation.watchPosition(function(position) {
                 $('#lat').val(position.coords.latitude);
                 $('#lon').val(position.coords.longitude);
              }
@@ -89,43 +102,7 @@
 
             $('#response').throbber({image: "/static/img/throbber.gif"});
             $('#businfo').throbber({image: "/static/img/throbber.gif"});
-            $.getJSON('/ajax/bus/ids/loc/49.2814856/-122.9573012', function(json) {
-                ii = 0;
-                for (ii=0; ii != json.busids.length; ii++) {
-                    $.getJSON('/ajax/bus/times/' + json.busids[ii], function(buses) {
-                        var ii = 0;
-                        var wellthen = "";
-                        for (ii=0; ii!=buses.idinfo.slice().length;ii++){
-                            wellthen += buses.idinfo[ii].times.slice();
-                        }
-                        $('#response').append("<ul>"+wellthen+"</ul>");
-                    });
-                }
-            });
-            
-            /*$.getJSON('/ajax/bus/loc/49.2814856/-122.9573012', function(json) {
-                //$('#response').html(json.bustimes.length);
-                var ii=0;
-                for (ii=0; ii<=(json.bustimes.length-1); ii++) { // step through the stops
-                    var jj=0;
-                    var stopid = json.bustimes[ii][0].stopID;
-                    var stopname = json.bustimes[ii][0].stopName;
-                    var times = "";
-                    var jj = 0
-                    for (jj=0; jj<=(json.bustimes[ii].slice().length-1); jj++) {
-                        var kk = 0;
-                        //for (kk=0; kk<=(json.bustimes[ii][jj].times.length-1); kk++) {
-                           times += "<li>" + json.bustimes[ii][jj].times.slice(0,4) + "</li>";
-                        //}
-                    }
-            
-                    $('#response').append("<b>" + stopid + "</b><br />" + "<p>" + stopname + "</p><ul class='times'>" + times + "</ul>");
-                }
-            });*/
 
-            //$('#response').load('/ajax/888')
-            //$('#businfo').load('/ajax/bus/close_stops')
-
-            });
+	        });
 </script>
 </html>
