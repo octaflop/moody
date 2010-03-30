@@ -23,7 +23,7 @@
             <hr />
                     <div class="span-24 last">
 			<div class="span-12 append-12 last">
-				<div id="map_canvas" style="width: 500px; height: 300px"></div>
+				<!-- map coming soon enough<div id="map_canvas" style="width: 500px; height: 300px"></div>-->
 			</div>
                         <div class="span-7 colborder">
                             <h3>Bus Info</h3>
@@ -48,11 +48,11 @@
                     </div>
                 </div>
 	</body>
-<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key=ABQIAAAA_6YxpRQIVJjIx8daYGWgaRSoe-VhWat6qM5h3ZKg1qD5_SlhqhRRcZsNaAPttPkDvNO1UjWo8d7_9g" type="text/javascript"></script>
+<!--<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key=ABQIAAAA_6YxpRQIVJjIx8daYGWgaRSoe-VhWat6qM5h3ZKg1qD5_SlhqhRRcZsNaAPttPkDvNO1UjWo8d7_9g" type="text/javascript"></script>-->
 <script type="text/javascript">
         $(document).ready(function(){
             // the main jQuery code
-    function initialize(lat,lon) { 
+/*    function initialize(lat,lon) { 
      if (GBrowserIsCompatible()) { 
        var map = new GMap2(document.getElementById("map_canvas"));
        map.setCenter(new GLatLng(lat, lon), 13);
@@ -63,17 +63,16 @@ var point = new GLatLng(lat, lon);
        map.addOverlay(new GMarker(point, markerOptions));
        map.setUIToDefault();
       }
-    }
+    }*/
             function build_watch() { // the main location function. Refreshable
                 navigator.geolocation.getCurrentPosition(function(position) {
                     $('#lat').val(position.coords.latitude);
                     $('#lon').val(position.coords.longitude);
                     var lat = position.coords.latitude;
                     var lon = position.coords.longitude;
-		    initialize(lat,lon);
+		    //initialize(lat,lon);
              $.getJSON('/ajax/bus/ids/loc/' + lat + '/' + lon, function(json) {
                 ii = 0;
-		
                 for (ii=0; ii != json.busids.length; ii++) {
                     $.getJSON('/ajax/bus/times/' + json.busids[ii], function(buses) {
                         var ii = 0;
