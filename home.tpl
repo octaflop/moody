@@ -46,6 +46,9 @@
                                 <h4 id="throbtest">ThrobTest</h4>
                         </div>
                     </div>
+		    <div class='span-24 last'><h2>Debug Console</h2>
+		    <script type="text/javascript" src='/static/firebug-lite.js'></script>
+		    </div>
                 </div>
 	</body>
 <!--<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key=ABQIAAAA_6YxpRQIVJjIx8daYGWgaRSoe-VhWat6qM5h3ZKg1qD5_SlhqhRRcZsNaAPttPkDvNO1UjWo8d7_9g" type="text/javascript"></script>-->
