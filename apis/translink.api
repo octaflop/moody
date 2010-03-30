@@ -1,0 +1,32 @@
+Please be gentle on the translink servers and do not abuse this information.
+
+    * Route Search
+          o http://m.translink.ca/api/routes/?q=22 returns
+          o [["022", "022 - Knight/Macdonald "], ["228", "228 - Lynn Valley/Lonsdale Quay "], ["229", "229 - Westlynn/Phibbs Exch/Lonsdale Quay"], ["C22", "C22 - Hampton Place/Ubc Loop"], ["N22", "N22 - Downtown/Dunbar Nightbus"]]
+    * Route Direction
+          o http://m.translink.ca/api/directions/?f=json&r=022 returns:
+          o [["west", "Macdonald Via Terminal"], ["east", "Knight Via Industrial"]]
+    * Route Stops with Stop Times
+          o http://m.translink.ca/api/stops/?f=json&r=022&d=West returns a list of all stops along the route with the next 4 stop times similar to:
+          o [50119, "Macdonald St @ W 21 Av", "7:19p", "7:30p", "7:40p", "7:54p"]
+    * Stop Search
+          o http://m.translink.ca/api/stops/?q=50119 returns:
+          o [[50119, "Macdonald St @ W 21 Av"]]
+    * All Routes at Stop with Times
+          o http://m.translink.ca/api/stops/?s=50119 returns:
+          o [["002 (W)", "002 - Macdonald-16Th Ave/Burrard Stn ", "7:19p"], ["022 (W)", "022 - Knight/Macdonald ", "7:19p", "7:30p", "7:40p", "7:54p"], ["N22 (S)", "N22 - Downtown/Dunbar Nightbus", "2:26a", "2:56a", "3:26a"]]
+    * Stop Location
+          o http://m.translink.ca/api/kml/stop/50119/ returns a simple kml file with the location such as:
+          o <?xml version="1.0" encoding="UTF-8"?>
+            <kml xmlns="http://www.opengis.net/kml/2.2">
+               <Placemark>
+                  <name>#50119 Macdonald St @ W 21 Av</name>
+                     <Point>
+                        <coordinates>-123.167891,49.253446</coordinates>
+                     </Point>
+               </Placemark>
+            </kml>
+    * Search for Stop by Location
+          o http://m.translink.ca/api/stops/?f=json&lng=-123.16789&lat=49.25344 returns the 10 closest stops:
+          o [[50113, "Macdonald St @ W 16 Av"], [50118, "Macdonald St @ W 19 Av"], [50119, "Macdonald St @ W 21 Av"], [50120, "Macdonald St @ W 23 Av"], [50121, "Macdonald St @ Alamein Av"], [51267, "Macdonald St @ Oliver Cres"], [51268, "Macdonald St @ W 24 Av"], [51269, "Macdonald St @ W 22 Av"], [51270, "Macdonald St @ W 20 Av"], [51271, "Macdonald St @ W 18 Av"]]
+          o Note: This looks like it will only work with 5 or fewer decimal places. In other words, -123.167891,49.253446 will not work, but -123.16789,49.25344 will. 
