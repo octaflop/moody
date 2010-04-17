@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# Faris Chebib
+# #301103355
+# 2010-04-16
 from nltk.corpus import wordnet as wn
 import nltk
 import opml
@@ -18,7 +22,6 @@ def get_source_info():
         titles.append(ii.text)
         htmlUrls.append(ii.htmlUrl)
         xmlUrls.append(ii.xmlUrl)
-
     return dict(htmlUrls=htmlUrls, titles=titles, xmlUrls=xmlUrls)
 
 
@@ -38,18 +41,19 @@ def build_story(stories):
     """
     storycorpus = {}
     storycorpus['summaries'] = []
-    #storycorpus['timestamps'] = []
+    # storycorpus['timestamps'] = [] 
+    # only some of the rss feeds have proper
+    # dates-stamps. this is pertubing
     storycorpus['urls'] = []
     storycorpus['uuids'] = []
 
     for ii in range(0, len(stories)):
         entries = stories[ii]['entries']
-        for e in range(0,len(entries)):
+        for e in range(0, len(entries)):
             storycorpus['summaries'].append(entries[e]['summary'])
-            #storycorpus['timestamps'].append(entries[e]['updated'])
+            # storycorpus['timestamps'].append(entries[e]['updated']) :(
             storycorpus['urls'].append(entries[e]['link'])
             storycorpus['uuids'].append(uuid.uuid1())
-
     return storycorpus
 
 def push_story(summaries=None, urls=None, uuids=None):
@@ -60,22 +64,21 @@ def push_story(summaries=None, urls=None, uuids=None):
     r = redis.Redis()
     #redis story id
     for ii in range(0,len(urls)):
+        # push a story to the server
         sid = r.incr('global.sid')
+        # atomically add a new story
+        r.zadd('site:storyroll', 'story:%s' % sid, 1):
         r.set('story:%s:uuid' % sid, uuids[ii])
+        r.set('story:%s:rawhtml' % sid, summaries[ii])
         clean_summary = nltk.clean_html(summaries[ii])
-        r.set('story:%s:summary' % sid, clean_summary)
+        r.set('story:%s:raw' % sid, clean_summary)
         r.set('story:%s:url' % sid, urls[ii])
         r.set('story:uuid:%s' % uuids[ii], sid)
 
 def get_story(sid=False):#, uuid=False):
     # create redis instance
     r = redis.Redis()
-   # if uuid:
-   # sid = r.get('story:uuid:%s' % uuid)
-   # elif sid:
     uuid = r.get('story:%s:uuid' % sid)
-   # else:
-   #     False
     summary = r.get('story:%s:summary' % sid)
     url = r.get('story:%s:url' % sid)
     return dict(summary=summary, url=url, uuid=uuid, sid=sid)
@@ -93,6 +96,23 @@ def story_vocab(sid):
     words = story_words(sid)
     vocab = sorted(set(words))
     return vocab
+
+def score_article():
+    """
+    main evaluation class
+    """
+
+#def pop_into_corpus():
+
+#def build_filter_corpus():
+    """
+    build a corpus of words the user dislikes
+    a testing function
+    """
+    #r = redis.Redis()
+
+    #r.zadd
+
 
 if __name__ == "__main__":
      #source = get_source_info()
