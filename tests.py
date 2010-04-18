@@ -1,67 +1,38 @@
-# tests.py
+#!/usr/bin/env python
 
-# sandbox
+from butler import *
+def test(value, expected_result):
+    print "Value: %s" str(value)
+    print "Expected: %s" str(value)
+    if value == expected_result:
+        print "passes"
+        return True
+    else:
+        print "error"
+        return False
 
-from bottle import route, run, view
-@route('/')
-@view('home')
-def build_subject():
-    subjects = ['Buses', 'Schedules', 'News']
-    return dict(title='Hello World', subjects=subjects)
+def bootstrap():
+    #only needed for first run of redis (for testing)
+    build_fixture()
+    # update stories
+    source = get_source_info()
+    stories = get_stories(**source)
+    stories = build_stories(**stories)
+    # only needed to push stories
+    # pushes all stories to redis
+    push_story(**stories)
 
-    @route('/test/:test')
-    @view('home')
-    def runtest(test):
-        # a simple test with no dynamic data
-        # prototyping
-        stuff = 'hello, you said: %s' % test
+def test():
+    if get_story(90):
+        sid = 90
+        test(like_article(sid), True)
+        test(dislike_article(sid+1), True)
+        print "article %i scored %i" % (sid+30, score_article(sid+30))
+        print get_ranked_stories()
+    else:
+        bootstrap()
+        test()
 
-        return dict(title=test, subjects=stuff)
-        
-            @route('/ajax/:requested')
-    def serve(request):
-        # This is where the jQuery will make its calls
-        # Testing reqest
-        response = (int(requested) * int(requested) * int(requested)) * 45
-        return str(response)
+if __name__ == "__main__":
+    test()
 
-    @route('/ajax/loc:loc')
-    @validate(loc=lambda x: map(float, x.split(',')))
-    def find_location(loc):
-        # GeoIP code
-        # returns latitude and longitude as a tuple
-        #agile stuff
-        # TODO: add postal-code conversion
-        lat, lon = loc[0], loc[1]
-
-        return (round(lat, 5), round(lon, 5))
-        
-        @route('/ajax/bus/')
-    def bus_stop_ids():
-        # show the closest stop-ids
-
-        lat = 49.27914
-        lon = -122.91611
-        lon = str(round(float(lon), 5))
-        lat = str(round(float(lat), 5))
-        api_req = "http://m.translink.ca/api/stops/?f=json&lng=%s&lat=%s" % (lon, lat)
-        api_response = urllib.urlopen(api_req).read()
-        return eval(api_response)
-    
-    #@route('/ajax/bus/loc', method='POST')
-#@post('/ajax/bus/loc')
-#def bus_time():
-    """
-    # shows the 5 closest bus stops
-    #lat = request.POST['lat']
-    #lon = request.POST['lon']       list the next times
-    """
-    # lat, lon = get_location()
-    
-    #return str(request.POST.getone('lat', '').strip()) + "<br />" + str(request.POST.getone('lon', '').strip())
-    #return str(request.POST.get('lat', '').strip()) + "<br />" + str(request.POST.get('lon', '').strip())
-#    return str(bottle.request.POST.get('lat', '').strip()) + "<br />" + str(bottle.request.POST.get('lon' ,'').strip())
-    #return str(request.POST('lat')) + "<br />" + str(request.POST('lon'))
-    #return request.params()
-
-run(host='localhost', port=8080)
