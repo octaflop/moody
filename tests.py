@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 from butler import *
-def test(value, expected_result):
-    print "Value: %s" str(value)
-    print "Expected: %s" str(value)
+def test_value(value, expected_result):
+    print "Value: %s" % str(value)
+    print "Expected: %s" % str(value)
     if value == expected_result:
         print "passes"
         return True
@@ -25,8 +25,8 @@ def bootstrap():
 def test():
     if get_story(90):
         sid = 90
-        test(like_article(sid), True)
-        test(dislike_article(sid+1), True)
+        test_value(like_article(sid), True)
+        test_value(dislike_article(sid+1), True)
         print "article %i scored %i" % (sid+30, score_article(sid+30))
         print get_ranked_stories()
     else:
